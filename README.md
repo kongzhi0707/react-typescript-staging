@@ -40,9 +40,9 @@ npm config set registry https://registry.npm.taobao.org
 
 但是假如之前没有设置过该淘宝源的话，当使用我们项目环境的时候，又要重新设置下会比较繁琐，因此为了不让用户繁琐，我们可以先在项目根目录下添加一个 .npmrc 文件，并且做一些简单的配置即可：
 
+```
 # 在项目的根目录下 创建 .npmrc 文件
 
-```
 touch .npmrc
 ```
 

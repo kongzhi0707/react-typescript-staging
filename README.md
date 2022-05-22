@@ -688,11 +688,13 @@ git commit -m "chora: add commitlint to force commit style"
 
 解决的办法：在 package.json 中的 script 脚本加入如下这句配置：
 
+```
 {
-"scripts": {
-"prepare": "husky install"
+  "scripts": {
+    "prepare": "husky install"
+  }
 }
-}
+```
 
 然后我们运行下 npm run prepare
 
@@ -700,15 +702,18 @@ git commit -m "chora: add commitlint to force commit style"
 
 然后我们再运行下面这个命令 就会在 .husky 目录下面生成一个 pre-commit 脚本。
 
+```
 npx husky add .husky/pre-commit "npm run lint-staged"
+```
 
 在我们的 package.json 中的 scripts 需要添加如下配置：
 
+```
 {
-"scripts": {
-"lint-staged": "lint-staged",
+  "scripts": {
+   "lint-staged": "lint-staged",
+  }
 }
-}
-这个脚本就是我们在 git commit 的时候就会运行这个脚本执行 npm run lint-staged 这个命令。 这样就可以解决了 pre-commit 不生效的问题。
+```
 
-当然我们还有一个更直接的版本， 更改版本号，在 package.json 中更改 "husky": "^4.3.8", 为这个版本。
+这个脚本就是我们在 git commit 的时候就会运行这个脚本执行 npm run lint-staged 这个命令。 这样就可以解决了 pre-commit 不生效的问题。

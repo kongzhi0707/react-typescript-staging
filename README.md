@@ -709,5 +709,6 @@ npx husky add .husky/pre-commit "npm run lint-staged"
 "lint-staged": "lint-staged",
 }
 }
-
 这个脚本就是我们在 git commit 的时候就会运行这个脚本执行 npm run lint-staged 这个命令。 这样就可以解决了 pre-commit 不生效的问题。
+
+当然我们还有一个更直接的版本， 更改版本号，在 package.json 中更改 "husky": "^4.3.8", 为这个版本。

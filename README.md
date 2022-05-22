@@ -69,9 +69,8 @@ registry=https://registry.npm.taobao.org/
 
 安装完此扩展后，我们在项目的根目录下新建 .editorconfig 文件，然后我们在该文件下 添加如下配置：
 
-# 如果未指定 root = true，则 EditorConfig 将继续在项目外部查找 .editorconfig 文件。
-
 ```
+# 如果未指定 root = true，则 EditorConfig 将继续在项目外部查找 .editorconfig 文件。
 root = true
 
 # 以下配置适用文件类型，可对不同文件类型设置不同规则

@@ -1,0 +1,17 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# 如果未指定 root = true，则 EditorConfig 将继续在项目外部查找 .editorconfig 文件。
+root = true
+
+# 以下配置适用文件类型，可对不同文件类型设置不同规则
+[*.{js,jsx,ts,tsx,vue,scss,json}]
+
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.md]
+trim_trailing_whitespace = false

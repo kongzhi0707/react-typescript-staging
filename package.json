@@ -9,6 +9,8 @@
     "lint-eslint": "eslint -c .eslintrc.js --ext .ts,.tsx,.js src",
     "lint-stylelint": "stylelint --config .stylelintrc.js src/**/*.{less,css,scss}",
     "prepare": "husky install",
+    "lint-staged": "lint-staged",
+    "lint-staged:js": "eslint --ext .js,.jsx,.ts,.tsx ",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "husky": {

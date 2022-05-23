@@ -716,3 +716,297 @@ npx husky add .husky/pre-commit "npm run lint-staged"
 ```
 
 这个脚本就是我们在 git commit 的时候就会运行这个脚本执行 npm run lint-staged 这个命令。 这样就可以解决了 pre-commit 不生效的问题。
+
+#### 三：Webpack 配置
+
+#### 1）安装webpack
+```
+npm install webpack webpack-cli -D
+```
+  然后在项目的根目录下新建文件夹 scripts, 在该文件夹下新建一个config文件夹，在config下新建一个 webpack.common.js 文件。
+```
+// webpack.common.js 配置代码
+
+const path = require('path');
+
+module.exports = {
+  entry: {
+    app: path.resolve(__dirname, "../../src/app.js"),
+  },
+  output: {
+    filename: 'js/[name].[contenthash:8].js',
+    path: path.resolve(__dirname, '../../dist'),
+  }
+};
+```
+#### hash值有如下三种及区别
+
+  那么给打包后的文件添加hash值，有三种，分别是：hash, chunkhash 和 contenthash. 那么他们之间的区别是什么呢？
+
+  hash：给文件添加hash值后，当每次修改任何一个文件时候，所有文件打包后的hash值都是一样的，因此如果只修改了其中任何一个文件，整个项目的文件缓存都会将失效。
+
+  chunkhash：也能给文件添加hash值，当其中一个文件发生改变的时候，当重新打包的时候，它不会把未改动的js文件中的hash值发生改变，因此未更改的js文件还是会使用缓存，因此chunkhash比hash更好，但是它也有一个缺点是：当js文件中因此了css文件代码，当我们改动js文件的时候，该css文件的hash值也会发生改变。css文件代码不能被缓存。
+
+  contenthash：是最优的方案，它可以解决 hash 和 chunkhash的缺点，并且兼容chunkhash的优点，因此我们使用 contenthash 来做hash值。
+
+#### 2）新建app.js
+
+  在项目的根目录下创建src文件夹，然后再新建 app.js，输入以下代码：
+```
+const root = document.querySelector('#root');
+root.innerHTML = 'hello world!';
+```
+  然后我们打开 package.json 文件，为其增加一条 npm 命令：
+```
+{
+  "scripts": {
+    "build": "webpack --config ./scripts/config/webpack.common.js"
+  }
+}
+```
+#### 注意： --config 选项用来指定配置文件。
+
+  我们在控制台中输入 npm run build 即可打包，在项目的根目录下会生成 dist/js/app.1a2cea2d.js 文件。
+
+#### 3) 公用变量文件
+
+  在上面的 webpack.common.js 文件配置中，我们发现两个表示路径的语句：
+```
+path.resolve(__dirname, "../../src/app.js")
+path.resolve(__dirname, '../../dist')
+```
+  入口文件和目标文件 都是使用 ../../ 来引用访问对应的文件路径，这种方式很不优雅，我们可以设置一个公用变量，然后引入这个公用变量即可，一次我们在 scripts目录下新建一个 叫 constant.js 文件，专门用于存放我们的公用变量。配置代码如下：
+```
+const path = require('path');
+
+const PROJECT_PATH = path.resolve(__dirname, '../');
+const PROJECT_NAME = path.parse(PROJECT_PATH).name;
+
+module.exports = {
+  PROJECT_PATH,
+  PROJECT_NAME
+};
+```
+PROJECT_PATH：表示项目的根目录。
+PROJECT_NAME：表示项目名。
+
+  然后我们在 webpack.common.js 中引入，修改代码如下：
+```
+const path = require('path');
+const { PROJECT_PATH } = require('../constant');
+
+module.exports = {
+  entry: {
+    app: path.resolve(PROJECT_PATH, "./src/app.js"),
+  },
+  output: {
+    filename: 'js/[name].[contenthash:8].js',
+    path: path.resolve(PROJECT_PATH, './dist'),
+  }
+};
+```
+  如上代码，我们这样就看起来比较舒服，然后我们重新 npm run build 后，可以生成目标文件了。
+
+#### 4）区分开发/生产环境
+
+  在 webpack 中针对开发环境和生产环境我们需要分别配置，比如在开发环境中，报错能定位到源代码的具体位置，因此我们需要打包生成出 .map文件。但是正式环境不需要map文件的。因此需要分别配置，但是开发环境和生产环境很多基础配置都是相同的，我们不可能两个环境有很多相同的配置代码，因此这个时候 webpack-merge 插件出现了。我们可以提取一个 webpack.common.js 文件，这个是公用基础配置代码。然后在开发环境或正式环境合并基础配置文件。
+
+  首先我们需要安装 webpack-merge ， 安装命令如下：
+```
+npm install webpack-merge -D
+```
+  然后在 scripts/config 下新建文件 webpack.dev.js 作为开发环境配置代码，配置代码如下：
+```
+const { merge } = require('webpack-merge');
+const common = require('./webpack.common.js');
+
+module.exports = merge(common, {
+  mode: 'development',
+});
+```
+  在 scripts/config 下新建文件 webpack.prod.js 作为生产环境配置，如下配置代码：
+```
+const { merge } = require('webpack-merge');
+const common = require('./webpack.common.js');
+
+module.exports = merge(common, {
+  mode: 'production',
+});
+```
+<a href="https://www.npmjs.com/package/cross-env">cross-env</a> 可跨平台设置和使用环境变量，不同操作系统设置环境变量的方式不一定相同，比如Mac
+电脑上使用 export NODE_ENV=development, 而 windows 电脑上使用的是 set NODE_ENV=development. 因此我们可以使用 cross-env 来兼容不同的操作系统的差异性。
+
+  首先需要安装它，安装命令如下：
+```
+npm install cross-env -D
+```
+  然后在 package.json 中添加修改如下代码：
+```
+{
+  "scripts": {
+    "start": "cross-env NODE_ENV=development webpack --config ./scripts/config/webpack.dev.js",
+    "build": "cross-env NODE_ENV=production webpack --config ./scripts/config/webpack.prod.js",
+  }
+}
+```
+  修改，scripts/constant.js 文件，增加一个公用的布尔变量 isDev, 判断是否是开发环境。代码如下：
+```
+const path = require('path');
+
+const isDev = process.env.NODE_ENV !== 'production';
+
+const PROJECT_PATH = path.resolve(__dirname, '../');
+const PROJECT_NAME = path.parse(PROJECT_PATH).name;
+
+module.exports = {
+  PROJECT_PATH,
+  PROJECT_NAME,
+  isDev
+};
+```
+  现在我们来使用这个变量，我们之前的 webpack.common.js 文件，输出文件名的时候 会生成 8位的hash编码，filename: 'js/[name].[hash:8].js', 但是在开发环境的时候，我们可以不需要hash编码，在线上是需要的，因为有缓存，每次发布的时候，我们都希望hash值不同，这样才会重新请求新的资源。因此我们可以使用该变量来判断开发环境还是线上环境。webpack.common.js 代码更改成如下：
+```
+const path = require('path');
+const { PROJECT_PATH, isDev } = require('../constant');
+
+module.exports = {
+  entry: {
+    app: path.resolve(PROJECT_PATH, "./src/app.js"),
+  },
+  output: {
+    filename: `js/[name]${isDev ? '' : '.[contenthash:8]'}.js`,
+    path: path.resolve(PROJECT_PATH, './dist'),
+  }
+};
+```
+##### 5. 本地服务实时查看页面
+
+  我们首先需要安装 webpack-dev-server 和 html-webpack-plugin. 安装命令如下：
+```
+npm install webpack-dev-server html-webpack-plugin -D
+```
+  html-webpack-plugin: 每一个页面是要有html文件的，而这个插件能帮助我们将打包后的js文件自动引入html文件。
+  webpack-dev-server：该插件可以在本地起一个http服务，通过简单的配置还可以指定其端口，热更新的开启等。
+
+  现在我们需要在项目的根目录下新建一个 public 文件夹，里面存放一些公用的静态资源，我们首先在其中新建一个 index.html， 并且加入如下内容：
+```
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React+Typescript 快速开发脚手架</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+```
+  然后我们打开我们的 scripts/config/webpack.common.js 配置代码改为如下：
+```
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { PROJECT_PATH, isDev } = require('../constant');
+
+module.exports = {
+  entry: {
+    app: path.resolve(PROJECT_PATH, "./src/app.js"),
+  },
+  output: {
+    filename: `js/[name]${isDev ? '' : '.[contenthash:8]'}.js`,
+    path: path.resolve(PROJECT_PATH, './dist'),
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: path.resolve(PROJECT_PATH, './public/index.html'),
+      filename: 'index.html',
+      cache: false, // 特别重要：防止之后使用v6版本 copy-webpack-plugin 时代码修改一刷新页面为空问题。
+      minify: isDev ? false : {
+        removeAttributeQuotes: true,
+        collapseWhitespace: true,
+        removeComments: true,
+        collapseBooleanAttributes: true,
+        collapseInlineTagWhitespace: true,
+        removeRedundantAttributes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        minifyCSS: true,
+        minifyJS: true,
+        minifyURLs: true,
+        useShortDoctype: true,
+      }
+    }),
+  ]
+};
+```
+  如上看到，我们以 public/index.html 文件作为模版，并且在生产环境中对生成html文件进行了代码压缩。
+
+  然后我们的 scripts/config/webpack.dev.js 配置代码改为如下：
+```
+const { merge } = require('webpack-merge');
+const common = require('./webpack.common.js');
+const { SERVER_HOST, SERVER_PORT } = require('../constant');
+
+module.exports = merge(common, {
+  mode: 'development',
+  devServer: {
+    host: SERVER_HOST, // 指定 host，不设置的话默认是 localhost
+    port: SERVER_PORT, // 指定端口，默认是8080
+    compress: true, // 是否启用 gzip 压缩
+    open: true, // 打开默认浏览器
+    hot: true, // 热更新
+  },
+  stats: "errors-only", // 只打印错误日志
+});
+```
+  现在我们需要在 scripts/constant.js 中新增两个新变量 SERVER_HOST 和 SERVER_PORT；配置代码如下：
+```
+const path = require('path');
+
+const isDev = process.env.NODE_ENV !== 'production';
+
+const PROJECT_PATH = path.resolve(__dirname, '../');
+const PROJECT_NAME = path.parse(PROJECT_PATH).name;
+
+const SERVER_HOST = '127.0.0.1';
+const SERVER_PORT = 9000;
+
+module.exports = {
+  PROJECT_PATH,
+  PROJECT_NAME,
+  isDev,
+  SERVER_HOST,
+  SERVER_PORT,
+};
+```
+  如上配置好了本地服务的相关配置，我们还需要回到 package.json 中修改start命令：
+```
+{
+  "scripts": {
+    "start": "cross-env NODE_ENV=development webpack-dev-server --config ./scripts/config/webpack.dev.js",
+  }
+}
+```
+  如上把 之前的webpack 改成了 webpack-dev-server;
+
+  然后我们重新使用 npm start 进行打包。就可以打开页面了。
+
+#### 利⽤friendly-errors-webpack-plugin插件优化⽇志
+
+  首先我们可以安装该插件， 安装命令如下：
+```
+npm install friendly-errors-webpack-plugin -D
+```
+  然后在 webpack.common.js 中引入该插件；
+```
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
+```
+  在plugins数组中加入该插件；
+```
+plugins: [
+  new FriendlyErrorsWebpackPlugin()
+]
+```
+  此时我们再运行 npm run dev 后，可以看到日志会出现 success, warning, danger 等效果。
+
+#### 6. devtool

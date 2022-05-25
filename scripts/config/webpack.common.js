@@ -3,6 +3,36 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const { PROJECT_PATH, isDev } = require('../constant');
 
+const getCssLoaders = (importLoaders) => {
+  'style-loader',
+    {
+      loader: 'css-loader',
+      options: {
+        modules: false,
+        sourceMap: isDev,
+        importLoaders,
+      },
+    },
+    {
+      loader: 'postcss-loader',
+      options: {
+        ident: 'postcss',
+        plugins: [
+          require('postcss-flexbugs-fixes'),
+          require('postcss-preset-env')({
+            autoprefixer: {
+              grid: true,
+              flexbox: 'no-2009',
+            },
+            stage: 3,
+          }),
+          require('postcss-normalize'),
+        ],
+        sourceMap: isDev,
+      },
+    };
+};
+
 module.exports = {
   entry: {
     app: path.resolve(PROJECT_PATH, './src/app.js'),
@@ -25,6 +55,9 @@ module.exports = {
               importLoaders: 0, // 指定在 CSS loader 处理前使用的 laoder 数量
             },
           },
+          {
+            loader: 'postcss-loader',
+          },
         ],
       },
       {
@@ -38,6 +71,9 @@ module.exports = {
               sourceMap: isDev, // 开发环境开启，生产环境关闭
               importLoaders: 1, // 需要先被 less-loader 处理，所以这里设置为 1
             },
+          },
+          {
+            loader: 'postcss-loader',
           },
           {
             loader: 'less-loader',
@@ -60,9 +96,37 @@ module.exports = {
             },
           },
           {
+            loader: 'postcss-loader',
+          },
+          {
             loader: 'sass-loader',
             options: {
               sourceMap: isDev,
+            },
+          },
+        ],
+      },
+      {
+        test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 10 * 1024,
+              name: '[name].[contenthash:8].[ext]',
+              outputPath: 'assets/images',
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(ttf|woff|woff2|eot|otf)$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              name: '[name].[contenthash:8].[ext]',
+              outputPath: 'assets/fonts',
             },
           },
         ],

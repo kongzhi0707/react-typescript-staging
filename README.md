@@ -1168,9 +1168,9 @@ test: test 字段是匹配规则，和正则表达式匹配类似。
 use 字段有以下几种写法：
 
 ```
-1）可以是一个字符串，假如我们只使用 style-loader, 只需要 use: 'style-loader'.
-2) 可以是一个数组，假如我们不对 css-loader 做额外的配置，只需要 use: ['style-loader', 'css-loader']。
-3） 数组的每一项可以是字符串也可以是一个对象，当我们需要在webpack的配置文件中对loader进行配置的话，就需要将其配置称为一个对象，并且在此对象的options
+  1）可以是一个字符串，假如我们只使用 style-loader, 只需要 use: 'style-loader'.
+  2) 可以是一个数组，假如我们不对 css-loader 做额外的配置，只需要 use: ['style-loader', 'css-loader']。
+  3） 数组的每一项可以是字符串也可以是一个对象，当我们需要在webpack的配置文件中对loader进行配置的话，就需要将其配置称为一个对象，并且在此对象的options
 字段中进行配置。比如我们上面的css-loader 配置的写法。
 ```
 
@@ -1227,7 +1227,7 @@ npm install node-sass sass-loader -D
 ```
 
 1. 遇到 .scss 后缀的文件，sass-loader 会将我们写的 sass 语法转换为 css 语法，并转为 .css 文件。
-   2）sass-loader 依赖 node-sass, 因此两个插件都需要被安装。
+2. sass-loader 依赖 node-sass, 因此两个插件都需要被安装。
 
 我们继续在 webpack.common.js 中配置如下代码：
 
@@ -1275,4 +1275,296 @@ postcss 是一种对 css 编译工具，它可以对 css 添加浏览器前缀�
 
 ```
 npm install postcss-loader postcss-flexbugs-fixes postcss-preset-env autoprefixer postcss-normalize -D
+```
+
+将 postcss-loader 放到 css-loader 后面，配置如下：
+
+```
+{
+  loader: 'postcss-loader',
+  options: {
+    ident: 'postcss',
+    plugins: [
+      require('postcss-flexbugs-fixes'),
+      require('postcss-preset-env')({
+        autoprefixer: {
+          grid: true,
+          flexbox: 'no-2009'
+        },
+        stage: 3,
+      }),
+      require('postcss-normalize'),
+    ],
+    sourceMap: isDev,
+  },
+},
+```
+
+但是上面的 我们不能直接放到 webpack 里面去了， 会有兼容问题， 因此我们需要在项目的根目录下 新建 一个 postcss.config.js 文件。
+
+#### 项目根目录中新建 postcss.config.js 文件
+
+项目根目录中新建 postcss.config.js 文件，然后在该文件中添加如下配置代码：
+
+```
+module.exports = {
+  plugins: [
+    require('postcss-flexbugs-fixes'),
+    require('postcss-preset-env')({
+      autoprefixer: {
+        grid: true,
+        flexbox: 'no-2009'
+      },
+      stage: 3,
+    }),
+    require('postcss-normalize'),
+  ]
+}
+```
+
+然后 scripts/config/webpack.common.js 配置代码变成如下：
+
+```
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
+const { PROJECT_PATH, isDev } = require('../constant');
+
+
+const getCssLoaders = (importLoaders) => {
+  'style-loader',
+  {
+    loader: 'css-loader',
+    options: {
+      modules: false,
+      sourceMap: isDev,
+      importLoaders,
+    }
+  },
+  {
+    loader: 'postcss-loader',
+    options: {
+      ident: 'postcss',
+      plugins: [
+        require('postcss-flexbugs-fixes'),
+        require('postcss-preset-env')({
+          autoprefixer: {
+            grid: true,
+            flexbox: 'no-2009'
+          },
+          stage: 3,
+        }),
+        require('postcss-normalize'),
+      ],
+      sourceMap: isDev,
+    }
+  }
+};
+
+module.exports = {
+  entry: {
+    app: path.resolve(PROJECT_PATH, './src/app.js'),
+  },
+  output: {
+    filename: `js/[name]${isDev ? '' : '.[contenthash:8]'}.js`,
+    path: path.resolve(PROJECT_PATH, './dist'),
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: false,
+              sourceMap: isDev, // 开发环境开启，生产环境关闭
+              importLoaders: 0, // 指定在 CSS loader 处理前使用的 laoder 数量
+            },
+          },
+          {
+            loader: 'postcss-loader',
+          }
+        ],
+      },
+      {
+        test: /\.less$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: false,
+              sourceMap: isDev, // 开发环境开启，生产环境关闭
+              importLoaders: 1, // 需要先被 less-loader 处理，所以这里设置为 1
+            },
+          },
+          {
+            loader: 'postcss-loader',
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              sourceMap: isDev,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              module: false,
+              sourceMap: isDev,
+              importLoaders: 1, // 需要先被 sass-loader 处理，所以这里设置为 1
+            },
+          },
+          {
+            loader: 'postcss-loader',
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: isDev,
+            },
+          },
+        ],
+      },
+    ],
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: path.resolve(PROJECT_PATH, './public/index.html'),
+      filename: 'index.html',
+      cache: false, // 特别重要：防止之后使用v6版本 copy-webpack-plugin 时代码修改一刷新页面为空问题。
+      minify: isDev
+        ? false
+        : {
+            removeAttributeQuotes: true,
+            collapseWhitespace: true,
+            removeComments: true,
+            collapseBooleanAttributes: true,
+            collapseInlineTagWhitespace: true,
+            removeRedundantAttributes: true,
+            removeScriptTypeAttributes: true,
+            removeStyleLinkTypeAttributes: true,
+            minifyCSS: true,
+            minifyJS: true,
+            minifyURLs: true,
+            useShortDoctype: true,
+          },
+    }),
+    new FriendlyErrorsWebpackPlugin(),
+  ],
+};
+```
+
+最后，我们需要在 package.json 中添加 browserslist （目的是指定项目的目标浏览器的范围）。
+
+```
+{
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "ie >= 9",
+    "not op_mini all"
+  ]
+}
+```
+
+我们可以测试下， 在外面的 src/app.less 添加 display: flex 后， 然后运行 npm start 重启服务，可以看到如下：
+
+<img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/4.png" />
+
+#### 9) 图片和字体文件处理
+
+我们可以使用 file-loader 或 url-loader 来处理本地资源文件，url-loader 具有 file-loader 所有的功能。还能在图片大小限制范围内打包成 base64
+图片插入到 js 文件中。
+
+安装命令如下：
+
+```
+npm install file-loader url-loader -D
+```
+
+然后在 webpack.common.js 中继续在 modules.rules 中添加以下代码：
+
+```
+module.exports = {
+  // other...
+  module: {
+    rules: [
+      // other...
+      {
+        test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 10 * 1024,
+              name: '[name].[contenthash:8].[ext]',
+              outputPath: 'assets/images',
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(ttf|woff|woff2|eot|otf)$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              name: '[name].[contenthash:8].[ext]',
+              outputPath: 'assets/fonts',
+            },
+          },
+        ],
+      },
+    ]
+  },
+  plugins: [//...],
+}
+```
+
+1. [name].[contenthash:8].[ext] 表示输出的文件名为 原来的文件名.哈希值.后缀.
+2. outputPath 是输出到 dist 目录下的路径，即图片目录 dist/assets/images 以及字体相关目录 dist/assets/fonts 下。
+3. limit 表示如果你这个图片文件大于 10240b ，即 10kb , url-loader 就不用，转而去使用 file-loader ，把图片正常打包成一个单独的图片文件到设置的
+   目录下，若是小于了 10kb ，就将图片打包成 base64 的图片格式插入到打包之后的文件中，这样做的好处是，减少了 http 请求.
+
+我们使用了 typescript ， 因此我们还需要在 src/ 下新建以下文件 typings/file.d.ts ，输入以下内容即可：
+
+```
+declare module '*.svg' {
+  const path: string
+  export default path
+}
+
+declare module '*.bmp' {
+  const path: string
+  export default path
+}
+
+declare module '*.gif' {
+  const path: string
+  export default path
+}
+
+declare module '*.jpg' {
+  const path: string
+  export default path
+}
+
+declare module '*.jpeg' {
+  const path: string
+  export default path
+}
+
+declare module '*.png' {
+  const path: string
+  export default path
+}
 ```

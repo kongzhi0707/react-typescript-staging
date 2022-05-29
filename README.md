@@ -4,7 +4,23 @@
 
 #### 注意：我这边前端编辑器是使用 vscode 编码的。
 
-### 一：环境搭建
+- [x] [环境搭建](#id1) <br/>
+- [x] [规范代码与提交](#id2) <br/>
+- [x] [Webpack 配置](#id3) <br/>
+- [x] [区分开发/生产环境](#id4) <br/>
+- [x] [本地服务实时查看页面](#id5) <br/>
+- [x] [devtool](#id6) <br/>
+- [x] [打包编译前清理 dist 目录](#id7) <br/>
+- [x] [样式文件处理](#id8) <br/>
+- [x] [图片和字体文件处理](#id9) <br/>
+- [x] [支持React](#id10) <br/>
+- [x] [支持TypeScript](#id11) <br/>
+- [x] [公共环境优化](#id12) <br/>
+- [x] [开发环境优化](#id13) <br/>
+- [x] [生产环境优化](#id14) <br/>
+
+
+### <div id="id1">一：环境搭建</div>
 
 在相应的位置，创建空项目文件， 使用命令： mkdir react-typescript-staging
 
@@ -56,7 +72,7 @@ registry=https://registry.npm.taobao.org/
 
 在项目的根目录下 新建 README.md，该文件可以编写一些项目配置环境的说明文档。
 
-### 二：规范代码与提交
+### <div id="id2">二：规范代码与提交</div>
 
 多人共同开发一个项目最大的问题就是代码风格各异，有的人习惯使用 2 个空格，有的人习惯使用 4 个空格，导致后续其他人维护代码越来越困难。因此我们从项目开始
 就要定一个规则将大家编码的风格统一。这样最终的结果是：增强代码的可维护性。
@@ -717,7 +733,7 @@ npx husky add .husky/pre-commit "npm run lint-staged"
 
 这个脚本就是我们在 git commit 的时候就会运行这个脚本执行 npm run lint-staged 这个命令。 这样就可以解决了 pre-commit 不生效的问题。
 
-#### 三：Webpack 配置
+#### <div id="id3">三：Webpack 配置</div>
 
 #### 1）安装 webpack
 
@@ -821,7 +837,7 @@ module.exports = {
 
 如上代码，我们这样就看起来比较舒服，然后我们重新 npm run build 后，可以生成目标文件了。
 
-#### 4）区分开发/生产环境
+#### <div id="id4">四）区分开发/生产环境</div>
 
 在 webpack 中针对开发环境和生产环境我们需要分别配置，比如在开发环境中，报错能定位到源代码的具体位置，因此我们需要打包生成出 .map 文件。但是正式环境不需要 map 文件的。因此需要分别配置，但是开发环境和生产环境很多基础配置都是相同的，我们不可能两个环境有很多相同的配置代码，因此这个时候 webpack-merge 插件出现了。我们可以提取一个 webpack.common.js 文件，这个是公用基础配置代码。然后在开发环境或正式环境合并基础配置文件。
 
@@ -907,7 +923,7 @@ module.exports = {
 };
 ```
 
-##### 5. 本地服务实时查看页面
+#### <div id="id5">五. 本地服务实时查看页面</div>
 
 我们首先需要安装 webpack-dev-server 和 html-webpack-plugin. 安装命令如下：
 
@@ -1055,7 +1071,7 @@ plugins: [
 
 此时我们再运行 npm run dev 后，可以看到日志会出现 success, warning, danger 等效果。
 
-#### 6. devtool
+#### <div id="id6">六. devtool</div>
 
 devtool 中的一些选项，可以帮助我们将编译后的代码映射回原始源代码。这对于调试代码非常重要，官方文档上可以看到 <a href="https://webpack.js.org/configuration/devtool/">devtool</a> 有具体哪些值, 下面我们在 webpack.dev.js 中添加 eval-source-map 值。
 
@@ -1097,7 +1113,7 @@ module.exports = merge(common, {
 
 <img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/3.png" />
 
-#### 7. 打包编译前清理 dist 目录
+#### <div id="id7">七. 打包编译前清理 dist 目录</div>
 
 我们可以借助 <a href="https://github.com/johnagan/clean-webpack-plugin">clean-webpack-plugin</a> 可以实现每次打包前先清理掉之前 dist 目录下的文件，以保证每次打包出来的都是当前最新的， 因此我们需要安装该包。
 
@@ -1120,7 +1136,7 @@ module.exports = {
 
 #### 注意：如上我们没有指定要删除的目录位置，它会自动帮我们找到 output 中的 path，然后进行清除掉。
 
-#### 8）样式文件处理
+#### <div id="id8">八）样式文件处理</div>
 
 如果我们现在在 src/ 目录下新建一个 app.css 文件，然后添加一些样式，然后 app.js 中通过 import './app.css' 后， 再进行打包或本地服务启动，webpack 直接会报错，那是因为 webapck 目前只能编译 js 文件，对于样式文件目前还不支持，因此我们需要安装样式对应的 loader。
 
@@ -1480,7 +1496,7 @@ module.exports = {
 
 <img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/4.png" />
 
-#### 9) 图片和字体文件处理
+#### <div id="id9">9) 图片和字体文件处理</div>
 
 我们可以使用 file-loader 或 url-loader 来处理本地资源文件，url-loader 具有 file-loader 所有的功能。还能在图片大小限制范围内打包成 base64
 图片插入到 js 文件中。
@@ -1568,3 +1584,975 @@ declare module '*.png' {
   export default path
 }
 ```
+
+#### <div id="id10">10) 支持React</div>
+
+  1) 首先我们需要安装 react 和 react-dom.
+```
+npm install react react-dom -S
+```
+  2) 安装对应的babel插件，来解析JSX语法；
+```
+npm install babel-loader @babel/core @babel/preset-react -D
+```
+  <a href="https://github.com/babel/babel-loader">babel-loader</a>使用 babel 解析文件；
+  <a href="https://babeljs.io/docs/en/babel-core.html">@babel/core</a>是babel的核心模块。
+  <a href="https://babeljs.io/docs/en/babel-preset-react">@babel/preset-react</a>是转译JSX的语法。
+
+  然后我们需要在项目的根目录下新建 .babelrc 文件， 输入以下代码：
+```
+{
+  "presets": ["@babel/preset-react"]
+}
+```
+  3) scripts/config/webpack.common.js 增加如下代码
+```
+module.exports = {
+  // other 其他代码
+  module: {
+    rules: [
+      {
+        test: /\.(tsx?|jsx?)$/,
+        loader: 'babel-loader',
+        options: { cacheDirectory: true },
+        exclude: /node_modules/,
+      },
+      // ....other
+    ]
+  },
+  plugins: [ //... ]
+};
+```
+#### 注意：我们匹配的文件后缀有 .tsx, .ts, .jsx, .js 文件.
+
+  babel-loader 在执行的时候，可能会产生一些运行期间重复的公共文件，造成代码体积冗余，也会减慢编译效率，所以开启了 cacheDirectory 将这些公共文件缓存起来了，下次编译就会快很多。
+
+  我们也给loader增加了exclude，排除 node_modules 目录下的，该目录下的我们不需要编译。可以提升编译的效率。
+
+  下面我们在 src 目录下 新建 index.js， src/index.js 增加如下代码：
+```
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+ReactDOM.render(<App />, document.querySelector('#root'));
+```
+  在 src/app.js 中输入以下代码：
+```
+import './app.less';
+
+import React from 'react';
+
+function App() {
+  return <div className='App'>Hello World</div>
+}
+
+export default App;
+```
+  然后我们修改 webpack.common.js 中的entry字段，修改入口文件变为 index.js; 如下代码：
+```
+module.exports = {
+  entry: {
+    app: path.resolve(PROJECT_PATH, './src/index.js'),
+  }
+}
+```
+  然后我们在控制台执行 npm start 运行即可。可以看到页面执行成功了，如下：
+
+<img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/5.png" />
+
+#### <div id="id11">11）支持TypeScript</div>
+
+#### 1）安装对应的babel插件
+
+  <a href="https://babeljs.io/docs/en/babel-preset-typescript">@babel/preset-typescript</a> 是babel的一个preset。 我们先要安装它：
+```
+npm install @babel/preset-typescript -D
+```
+#### 2) 修改 .babelrc
+```
+{
+  "presets": ["@babel/preset-react", "@babel/preset-typescript"]
+}
+```
+#### 注意：presets 的执行顺序是从后到前的。因此会先执行 @babel/preset-typescript ， 然后再执行： @babel/preset-react。
+
+  我们上面既然安装了 TypeScript，那么React的类型声明也需要安装下，安装命令如下：
+```
+npm install @types/react @types/react-dom -D
+```
+#### tsx 语法测试
+
+  把 src/index.js 改成 src/index.tsx, 然后代码改成如下：
+```
+src/index.tsx
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './app';
+
+ReactDOM.render(<App name='kongzhi' age={ 33 }/>, document.querySelector('#root'));
+```
+  把 src/app.js 改成 src/app.tsx, 然后代码改成如下：
+```
+import './app.less';
+
+import React from 'react';
+
+interface IProps {
+  name: string,
+  age: number
+}
+
+function App(props: IProps) {
+  const { name, age } = props;
+
+  return <div className='App'>
+    <span>{ `Hello! I'm ${name}, ${age} years old`}</span>
+  </div>
+}
+
+export default App;
+```
+#### 修改 入口文件
+
+  我们还需要修改入口文件 webpack.common.js 文件。如下代码：
+```
+module.exports = {
+  entry: {
+    app: path.resolve(PROJECT_PATH, './src/index.tsx'),
+  },
+  output: { //...},
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js', '.json'],
+  },
+};
+```
+  1） 如上我们更改了入口文件变成 index.tsx;
+  2) 新增了 resolve 属性，在 extensions 中定义好了文件名后缀后，当我们 import 引入一个模块文件的时候，我们不需要再加 后缀名了。
+
+  我们现在 再执行 npm start 后，页面就可以正确输出了。
+
+#### tsconfig.json 详解
+
+  每个TypeScript项目在其项目的根目录下一般都有 tsconfig.json 文件， 该文件的作用是：
+
+  1）编译指定的文件。
+  2）定义了编译的选项规则。
+
+  因此我们需要在项目的根目录下生成 tsconfig.json 文件。 在项目的根目录下执行如下命令：
+```
+npx tsc --init
+```
+  就会生成 tsconfig.json 文件，里面有很多注释和几个配置，我们先把他们全部删除，然后输入我们自己的配置项：
+```
+{
+  "compilerOptions": {
+    // 基本配置
+    "target": "ES5",                          // 编译成哪个版本的 es
+    "module": "ESNext",                       // 指定生成哪个模块系统代码
+    "lib": ["dom", "dom.iterable", "esnext"], // 编译过程中需要引入的库文件的列表
+    "allowJs": true,                          // 允许编译 js 文件
+    "jsx": "react",                           // 在 .tsx 文件里支持 JSX
+    "isolatedModules": true,
+    "strict": true,                           // 启用所有严格类型检查选项
+
+    // 模块解析选项
+    "moduleResolution": "node",               // 指定模块解析策略
+    "esModuleInterop": true,                  // 支持 CommonJS 和 ES 模块之间的互操作性
+    "resolveJsonModule": true,                // 支持导入 json 模块
+    "baseUrl": "./",                          // 根路径
+    "paths": {																// 路径映射，与 baseUrl 关联
+      "Src/*": ["src/*"],
+      "Components/*": ["src/components/*"],
+      "Utils/*": ["src/utils/*"]
+    },
+
+    // 实验性选项
+    "experimentalDecorators": true,           // 启用实验性的ES装饰器
+    "emitDecoratorMetadata": true,            // 给源码里的装饰器声明加上设计类型元数据
+
+    // 其他选项
+    "forceConsistentCasingInFileNames": true, // 禁止对同一个文件的不一致的引用
+    "skipLibCheck": true,                     // 忽略所有的声明文件（ *.d.ts）的类型检查
+    "allowSyntheticDefaultImports": true,     // 允许从没有设置默认导出的模块中默认导入
+    "noEmit": true														// 只想使用tsc的类型检查作为函数时（当其他工具（例如Babel实际编译）时）使用它
+  },
+  "exclude": ["node_modules"]
+}
+```
+  如上配置最主要看 baseUrl 和 paths，它们的作用是快速定位某个文件。防止在页面中引入模块，以 ../../../ 类似这样的相对路径引入。比如我现在的src有如下
+目录文件：
+```
+|---src
+| |--- components
+| | |--- Header
+| | | |--- index.tsx
+| | | |--- index.less
+| |--- utils
+| | |--- index.ts
+| |--- app.tsx
+| |--- index.tsx
+```
+  然后我们在 app.tsx 中引入 import Header from 'Components/Header'; 代码，然后vscode编辑器会报错;
+
+  因此我们需要改 .eslintrc.js 文件的配置了，首先我们得安装 <a href="https://github.com/alexgorbatchev/eslint-import-resolver-typescript">eslint-import-resolver-typescript</a>
+```
+npm install eslint-import-resolver-typescript -D
+```
+  然后在 .eslintrc.js 文件的 settings 字段修改为以下代码：
+```
+settings: {
+  'import/resolver': {
+    node: {
+      extensions: ['.tsx', '.ts', '.js', '.json'],
+    },
+    typescript: {},
+  },
+},
+```
+  我们只需要添加 typescript: {} 即可。
+
+  其次我们还需要在 webpack.common.js 中的 resolve.alias 添加相同的映射规则配置，如下：
+```
+module.exports = {
+  // other...
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js', '.json'],
+    alias: {
+      'Src': path.resolve(PROJECT_PATH, './src'),
+      'Components': path.resolve(PROJECT_PATH, './src/components'),
+      'Utils': path.resolve(PROJECT_PATH, './src/utils'),
+    }
+  },
+  module: { //... }
+  plugins: [ //... ]
+}
+```
+  tsconfig.json 和 webpack.common.js 配置相同就可以了，当然如果我们不在 tsconfig.json 配置的话，直接在 webpack 配置也是可以的， 但是当发生引入文件错误的时候，文件不会实时提示报错，比如引入一个不存在的路径时候，只有在webpack打包的时候会报错。其实配置 tsconfig.json 就是希望文件能实时给我们提示。
+
+#### babel-plugin-transform-runtime
+
+  想了解更多babel配置，可以看我 <a href="https://github.com/kongzhi0707/front-end-learn/blob/master/node/babelrc.md">这篇文章</a>
+
+  如上我们已经使用babel去解析react语法和typescript的语法了，但是在代码中用到的ES6+语法编译之后会全部保留，但是不是所有浏览器都支持ES6+语法的。这个时候我们就需要 @babel/preset-env 了，它会根据设置的目标浏览器环境(browserslist)找到所需的插件去转译 ES6+ 的语法。
+
+  但是碰到最新的es特性，比如Promise， includes 等是没有办法转译到 ES5的，因此我们需要借助 <a href="https://www.babeljs.cn/docs/babel-plugin-transform-runtime">@babel/plugin-transform-runtime</a> 这个插件了。
+
+  并且，babel在编译每一个模块的时候在需要的时候会插入一些辅助函数 比如 _extend, 每一个需要的模块都会生成这个辅助函数，这就会导致代码的冗余，@babel/plugin-transform-runtime 这个插件会将所有的辅助函数都从 @babel/runtime-corejs3 导入（我们下面使用 corejs3），从而减少冗余性。
+
+  我们需要安装如下：
+```
+npm install @babel/preset-env @babel/plugin-transform-runtime -D
+npm install @babel/runtime-corejs3 -S
+```
+  然后我们需要修改 .babelrc 文件如下配置代码：
+```
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        // 防止babel将任何模块类型都转译成CommonJS类型，导致tree-shaking失效问题
+        "modules": false 
+      }
+    ],
+    "@babel/preset-react",
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "corejs": {
+          "version": 3,
+          "proposals": true
+        },
+        "useESModules": true
+      }
+    ]
+  ]
+}
+```
+  如上就是 react + typeScript 项目开发环境搭配了。现在可以正常开发了。
+
+#### <div id="id12">12) 公共环境优化</div>
+
+#### 1）拷贝公共静态资源
+
+  我们的项目，到现在还没有icon， 如下：
+
+<img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/6.png" />
+
+  比如 create-react-app , 会有 .ico 文件放在 public/目录下，因此我们这边也弄一个 cra 的 favicon.ico 文件。因此我们可以手动复制一个 favicon.ico文件到 public/ 目录下，如下所示：
+
+<img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/7.png" />
+
+  如果我们直接执行 npm run build / npm start 打包，我们会发现我们的dist目录下是没有 favicon.ico 这个文件的。因此我们在打包的时候需要把我们的 public/ 文件夹下的静态资源复制到我们打包后生成的dist目录中。因此我们借助 <a href="https://github.com/webpack-contrib/copy-webpack-plugin">copy-webpack-plugin</a> 插件.
+
+  安装命令如下：
+```
+npm install copy-webpack-plugin -D
+```
+  修改 webpack.common.js 文件，增加如下代码：
+```
+const CopyPlugin = require('copy-webpack-plugin');
+
+module.exports = {
+	plugins: [
+    // 其它 plugin...
+  	new CopyPlugin({
+      patterns: [
+        { from: path.resolve(PROJECT_PATH, './public/*'), to: path.resolve(PROJECT_PATH, './dist') }
+      ]
+    }),
+  ]
+}
+```
+  如上配置完成后，我们需要修改我们的 public/index.html 文件加入icon标签了，如下代码：
+```
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React+Typescript 快速开发脚手架</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+```
+  现在我们重新 npm start 后，重启项目，清除页面的缓存，就可以看到有对应的icon了。如下所示：
+
+<img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/8.png" />
+
+  同样的，如果我们还有其他的静态资源文件的话，我们只要往 public/目录下放，打包之后都会自动复制到 dist/ 目录下的。
+
+#### 2) 显示编译进度
+
+  我们现在执行 npm start 或 npm run build 后，控制台没有任何信息告诉我们现在编译的进度怎么样，如果一个项目非常大的话，编译打包的时间会非常多，如果没有任何提示的话，会误认为项目启动是不是卡住了。因此显示进度条提示非常重要。
+
+  进度条我们使用到 progress-bar-webpack-plugin 插件，因此我们需要安装该插件，安装的命令如下：
+```
+npm install progress-bar-webpack-plugin -D
+```
+  然后在我们的 webpack.common.js 引入该插件即可，如下代码：
+```
+const ProgressBarWebpackPlugin = require('progress-bar-webpack-plugin');
+
+module.exports = {
+  //...
+  plugins: [
+    new ProgressBarWebpackPlugin(),
+  ],
+}
+```
+  如上配置完成后，我们运行 npm start 后进行打包，然后控制台有进度条如下提示：
+
+<img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/9.png" />
+
+#### 3) 编译时的 TypeScript 类型检查
+
+  我们之前配置babel，为了编译速度，babel编译ts时直接将类型去掉了，并不会对ts的类型做检查。比如 我们的 src/app.tsx 文件下， 我随便结构出一个事先没有
+声明的类型：
+
+  多加了一个 sex 属性，之前并没有任何声明，虽然会提示，但是webpack并不会报错，导致有问题也没有去解决，所以这违反了 typescript 类型声明所带来的优势，如下：
+
+<img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/10.png" />
+
+  因此我们需要 借助 <a href="https://github.com/TypeStrong/fork-ts-checker-webpack-plugin#typescript-options">fork-ts-checker-webpack-plugin</a> 插件，在我们打包或启动本地服务时就给予错误，现在我们安装命令如下：
+```
+npm install fork-ts-checker-webpack-plugin -D
+```
+  在 webpack.common.js 中增加以下代码：
+```
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+
+module.exports = {
+	plugins: [
+    // 其它 plugin...
+  	new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        configFile: path.resolve(PROJECT_PATH, './tsconfig.json'),
+      },
+    }),
+  ]
+}
+```
+  然后我们运行 npm start 后，我们的控制台就会报错了，如下所示：
+
+<img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/11.png" />
+
+  我们现在把 sex 去掉，就不会报错了。
+
+#### 4) external 减少打包体积
+
+  到目前为止，我们不管是开发环境还是生产环境，都会将react和react-dom的代码打进我们的最终生成的代码中，这就会导致一个问题的，就是我们的js文件将会很大。
+如果以后还会有很多第三方包的话，那么文件将会很大很大。我们的页面的加载速度将会变得很慢，会影响用户体验，因此我们可以将这种第三方包剥离出去或者采用CDN链接的形式。
+
+  修改 webpack.common.js ， 增加以下代码：
+```
+module.exports = {
+	plugins: [
+    // 其它 plugin...
+  ],
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+  },
+}
+```
+  在开发时，我们是这样使用 react 和 react-dom的：
+```
+import React from 'react'
+import ReactDOM from 'react-dom'
+```
+  那么，我们最终打完的包已经不注入这两个包的代码了，我们打开 public/index.html 增加cdn的链接形式引入，也就是外链包。
+```
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+    <div id="root"></div>
++   <script crossorigin src="https://unpkg.com/react@16.13.1/umd/react.production.min.js"></script>
++   <script crossorigin src="https://unpkg.com/react-dom@16.13.1/umd/react-dom.production.min.js"></script>
+  </body>
+</html>
+```
+#### 5) 抽离公共代码
+
+  splitChunks 是webpack中一个提取或分离代码的插件，主要作用是提取公共代码，防止代码被重复打包，拆分过大的js文件，合并零散的js文件。
+
+  因此我们需要在 webpack.common.js 增加以下代码：
+```
+module.exports = {
+	// other...
+  externals: {//...},
+  optimization: {
+    splitChunks: {
+      chunks: "all",          //async对异步引入的代码分割 initial对同步引入代码分割 all对同步异步引入的分割都开启
+      minSize: 30000,         //字节 引入的文件大于30kb才进行分割
+      //maxSize: 50000,         //50kb，尝试将大于50kb的文件拆分成n个50kb的文件
+      minChunks: 1,           //模块至少使用次数
+      maxAsyncRequests: 5,    //同时加载的模块数量最多是5个，只分割出同时引入的前5个文件（按需加载模块）
+      maxInitialRequests: 3,  //首页加载的时候引入的文件最多3个（加载初始页面）
+      automaticNameDelimiter: '~', //缓存组和生成文件名称之间的连接符
+      // name: true,                  //缓存组里面的filename生效，覆盖默认命名
+      cacheGroups: { //缓存组，将所有加载模块放在缓存里面一起分割打包
+        vendors: {  //自定义打包模块
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10, //优先级，先打包到哪个组里面，值越大，优先级越高
+          filename: 'vendors.js',
+        },
+        default: { //默认打包模块
+          priority: -20,
+          reuseExistingChunk: true, //模块嵌套引入时，判断是否复用已经被打包的模块
+          filename: 'common.js'
+        }
+      }
+    }
+  }
+}
+```
+#### <div id="id13">13) 开发环境优化</div>
+
+#### 1）热更新
+
+  热更新期望的是：如果页面只改动了某一个页面，那么我们需要的是进行局部更新。而不需要整个页面进行刷新，因为当项目非常大的时候，重新执行热更新，回很耗时的。
+
+  那么我们要如何做呢？
+
+#### 1.1）将 webpack.dev.js 中的 devServer 下的hot属性设置为 true。如下配置中的 hot 属性即可。
+```
+module.exports = merge(common, {
+  mode: 'development',
+  devtool: 'eval-source-map',
+  devServer: {
+    host: SERVER_HOST, // 指定 host，不设置的话默认是 localhost
+    port: SERVER_PORT, // 指定端口，默认是8080
+    compress: true, // 是否启用 gzip 压缩
+    open: true, // 打开默认浏览器
+    hot: true, // 热更新
+  },
+  stats: 'errors-only', // 只打印错误日志
+});
+```
+#### 1.2）新增 webpack.HotModuleReplacementPlugin 插件；在 webpack.dev.js 添加配置代码如下：
+```
+module.exports = merge(common, {
+  mode: 'development',
+  devtool: 'eval-source-map',
+  devServer: {
+    host: SERVER_HOST, // 指定 host，不设置的话默认是 localhost
+    port: SERVER_PORT, // 指定端口，默认是8080
+    compress: true, // 是否启用 gzip 压缩
+    open: true, // 打开默认浏览器
+    hot: true, // 热更新
+  },
+  stats: 'errors-only', // 只打印错误日志
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+  ]
+});
+```
+  如上操作后，会报错 TypeError: webpack.HotModuleReplacementPlugin is not a constructor，那是因为webpack升级了， 因此我们改成如下方式：
+```
+module.exports = merge(common, {
+  // ...other
+  devServer: { // ... },
+  optimization: {
+    moduleIds: 'named',
+  },
+});
+```
+  因此 webpack.dev.js 改成如下了：
+```
+module.exports = merge(common, {
+  mode: 'development',
+  devtool: 'eval-source-map',
+  devServer: {
+    host: SERVER_HOST, // 指定 host，不设置的话默认是 localhost
+    port: SERVER_PORT, // 指定端口，默认是8080
+    compress: true, // 是否启用 gzip 压缩
+    open: true, // 打开默认浏览器
+    hot: true, // 热更新
+  },
+  stats: 'errors-only', // 只打印错误日志
+  optimization: {
+    moduleIds: 'named',
+  },
+});
+```
+#### 1.3）修改入口文件
+
+  修改我们的 src/index.tsx 的入口文件代码，添加如下代码：
+```
+if (module && module.hot) {
+  module.hot.accept()
+}
+```
+  整个代码如下：
+```
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './app';
+
+
+if (module && module.hot) {
+  module.hot.accept()
+}
+
+ReactDOM.render(<App name='kongzhi' age={ 33 }/>, document.querySelector('#root'));
+```
+  但是这个时候因为ts的原因会报错，如下所示：
+
+<img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/12.png" />
+
+  我们修复的方法是只需要安装 @types/webpack-env 即可：安装命令如下：
+```
+npm install @types/webpack-env -D
+```
+  然后我们在保存下 对应的文件 就不会报错了， 重启下 npm start 后，就ok了。
+
+#### 2) 跨域请求
+
+  一般情况下，我们使用 devServer 中的 proxy 字段就能配置接口代理进行跨越请求。但是为了构建环境的代码和业务代码进行分离，我们可以将配置文件进行独立出来。
+  我们可以按照这样做：
+
+#### 2.1）在 src/ 下新建一个 setProxy.js 文件，并添加如下代码：
+```
+const proxySettings = {
+  // 接口代理1
+  '/api/': {
+    target: 'http://198.168.111.111:3001',
+    changeOrigin: true,
+  },
+  // 接口代理2
+  '/api-2/': {
+    target: 'http://198.168.111.111:3002',
+    changeOrigin: true,
+    pathRewrite: {
+      '^/api-2': '',
+    },
+  },
+  // .....
+}
+
+module.exports = proxySettings;
+```
+#### 2.2) 在webpack.dev.js 引入该文件
+```
+const proxySetting = require('../../src/setProxy.js')
+
+module.exports = merge(common, {
+  devServer: {
+    //...
+    proxy: { ...proxySetting }
+  },
+})
+```
+#### <div id="id14">14) 生产环境优化</div>
+
+#### 1）抽离出css样式
+
+  我们现在需要把css文件单独抽出来，之前我们把所有写的样式都打包到js文件中了，如果一直这样的话，那么随着项目逐渐变大，js文件就会越来越大。因此我们可以借助
+<a href="https://github.com/webpack-contrib/mini-css-extract-plugin">mini-css-extract-plugin</a> 插件进行css样式拆分，首先我们先安装它。
+```
+npm install mini-css-extract-plugin -D
+```
+  然后我们在 webpack.common.js 文件中增加和修改如下代码：
+```
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
+const getCssLoaders = (importLoaders) => [
+  isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
+  // ....
+]
+
+module.exports = {
+	plugins: [
+    // 其它 plugin...
+    !isDev && new MiniCssExtractPlugin({
+      filename: 'css/[name].[contenthash:8].css',
+      chunkFilename: 'css/[name].[contenthash:8].css',
+      ignoreOrder: false,
+    }),
+  ]
+}
+```
+  因此我们的 webpack.common.js 所有代码变为如下：
+```
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const ProgressBarWebpackPlugin = require('progress-bar-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+const { PROJECT_PATH, isDev } = require('../constant');
+
+const getCssLoaders = (importLoaders) => [
+  isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
+    {
+      loader: 'css-loader',
+      options: {
+        modules: false,
+        sourceMap: isDev, // 开发环境开启，生产环境关闭
+        importLoaders, // 指定在 CSS loader 处理前使用的 laoder 数量
+      },
+    },
+    {
+      loader: 'postcss-loader',
+      options: {
+        postcssOptions: {
+          plugins: [
+            require('postcss-flexbugs-fixes'),
+            require('postcss-preset-env')({
+              autoprefixer: {
+                grid: true,
+                flexbox: 'no-2009',
+              },
+              stage: 3,
+            }),
+            require('postcss-normalize'),
+          ],
+        },
+        sourceMap: isDev,
+      },
+    }
+  ];
+
+module.exports = {
+  entry: {
+    app: path.resolve(PROJECT_PATH, './src/index.tsx'),
+  },
+  output: {
+    filename: `js/[name]${isDev ? '' : '.[contenthash:8]'}.js`,
+    path: path.resolve(PROJECT_PATH, './dist'),
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js', '.json'],
+    alias: {
+      'Src': path.resolve(PROJECT_PATH, './src'),
+      'Components': path.resolve(PROJECT_PATH, './src/components'),
+      'Utils': path.resolve(PROJECT_PATH, './src/utils'),
+    }
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(tsx?|jsx?)$/,
+        loader: 'babel-loader',
+        options: { cacheDirectory: true },
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.css$/,
+        use: getCssLoaders(1),
+      },
+      {
+        test: /\.less$/,
+        use: [
+          ...getCssLoaders(2),
+          {
+            loader: 'less-loader',
+            options: {
+              sourceMap: isDev,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              module: false,
+              sourceMap: isDev,
+              importLoaders: 1, // 需要先被 sass-loader 处理，所以这里设置为 1
+            },
+          },
+          {
+            loader: 'postcss-loader',
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: isDev,
+            },
+          },
+        ],
+      },
+      {
+        test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 10 * 1024,
+              name: '[name].[contenthash:8].[ext]',
+              outputPath: 'assets/images',
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(ttf|woff|woff2|eot|otf)$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              name: '[name].[contenthash:8].[ext]',
+              outputPath: 'assets/fonts',
+            },
+          },
+        ],
+      },
+    ],
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: path.resolve(PROJECT_PATH, './public/index.html'),
+      filename: 'index.html',
+      cache: false, // 特别重要：防止之后使用v6版本 copy-webpack-plugin 时代码修改一刷新页面为空问题。
+      minify: isDev
+        ? false
+        : {
+            removeAttributeQuotes: true,
+            collapseWhitespace: true,
+            removeComments: true,
+            collapseBooleanAttributes: true,
+            collapseInlineTagWhitespace: true,
+            removeRedundantAttributes: true,
+            removeScriptTypeAttributes: true,
+            removeStyleLinkTypeAttributes: true,
+            minifyCSS: true,
+            minifyJS: true,
+            minifyURLs: true,
+            useShortDoctype: true,
+          },
+    }),
+    new FriendlyErrorsWebpackPlugin(),
+    new CopyPlugin({
+      patterns: [
+        { from: path.resolve(PROJECT_PATH, './public/*'), to: path.resolve(PROJECT_PATH, './dist') }
+      ]
+    }),
+    new ProgressBarWebpackPlugin(),
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        configFile: path.resolve(PROJECT_PATH, './tsconfig.json'),
+      },
+    }),
+    !isDev && new MiniCssExtractPlugin({
+      filename: 'css/[name].[contenthash:8].css',
+      chunkFilename: 'css/[name].[contenthash:8].css',
+      ignoreOrder: false
+    }),
+  ],
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+  },
+  optimization: {
+    splitChunks: {
+      chunks: "all",          //async对异步引入的代码分割 initial对同步引入代码分割 all对同步异步引入的分割都开启
+      minSize: 30000,         //字节 引入的文件大于30kb才进行分割
+      //maxSize: 50000,         //50kb，尝试将大于50kb的文件拆分成n个50kb的文件
+      minChunks: 1,           //模块至少使用次数
+      maxAsyncRequests: 5,    //同时加载的模块数量最多是5个，只分割出同时引入的前5个文件（按需加载模块）
+      maxInitialRequests: 3,  //首页加载的时候引入的文件最多3个（加载初始页面）
+      automaticNameDelimiter: '~', //缓存组和生成文件名称之间的连接符
+      // name: true,                  //缓存组里面的filename生效，覆盖默认命名
+      cacheGroups: { //缓存组，将所有加载模块放在缓存里面一起分割打包
+        vendors: {  //自定义打包模块
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10, //优先级，先打包到哪个组里面，值越大，优先级越高
+          filename: 'vendors.js',
+        },
+        default: { //默认打包模块
+          priority: -20,
+          reuseExistingChunk: true, //模块嵌套引入时，判断是否复用已经被打包的模块
+          filename: 'common.js'
+        }
+      }
+    }
+  },
+};
+```
+  然后我们运行 npm run build 后，可以看到css被单独打包出来了，如下所示：
+
+<img src="https://raw.githubusercontent.com/kongzhi0707/front-end-learn/master/react/images/13.png" />
+
+  如上我们更改了 getCssLoaders 方法，之前是无论什么环境我们使用的都是 style-loader, 现在我们在生产环境中使用 MiniCssExtractPlugin.loader。
+
+ #### 2）去除无用的样式
+
+  我们在样式中随便写个样式，然后在打包的时候会给打包进去。
+
+  我们在 app.less 随便写了 .xx 样式，如下：
+```
+body {
+  font-size: 12px;
+  display: flex;
+}
+
+.xx {
+  display: block;
+}
+```
+  然后我们运行 npm run build 命令后，在在dist包里面生成如下：
+```
+body {
+  font-size: 12px;
+  display: -ms-flexbox;
+  display: flex;
+}
+.xx {
+  display: block;
+}
+
+.header {
+  background: lightgreen;
+}
+```
+  打包后默认保留了 xx 这个样式，但是该代码是无意义的，因此我们需要把它剔除掉， 因此我们使用 <a href="https://github.com/FullHuman/purgecss/tree/master/packages/purgecss-webpack-plugin">purgecss-webpack-plugin</a> 这个插件, 但是我们在这之前我们需要安装查找路径 <a href="https://github.com/isaacs/node-glob">node-glob</a> 插件.
+```
+npm install purgecss-webpack-plugin glob -D
+```
+  然后我们在 webpack.prod.js 中增加如下代码：
+```
+const { merge } = require('webpack-merge');
+const common = require('./webpack.common.js');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+const glob = require('glob');
+const path = require('path');
+const PurgeCSSPlugin = require('purgecss-webpack-plugin');
+const { PROJECT_PATH } = require('../constant');
+
+module.exports = merge(common, {
+  mode: 'production',
+  devtool: 'cheap-module-source-map',
+  plugins: [
+    new CleanWebpackPlugin(),
+    new PurgeCSSPlugin({
+      paths: glob.sync(`${path.resolve(PROJECT_PATH, './src')}/**/*.{tsx,scss,less,css}`, { nodir: true }),
+      whitelist: ['html', 'body']
+    }),
+  ],
+});
+```
+  然后我们再运行下 npm run build 命令后，就没有了。
+
+#### 3）压缩js和css代码
+
+#### js 代码压缩
+
+  webpack4 中js代码压缩插件 <a href="https://github.com/webpack-contrib/terser-webpack-plugin">terser-webpack-plugin</a>, 它支持对ES6语法的压缩，且在mode为 production 时默认开启。我们先安装该插件：
+```
+npm install terser-webpack-plugin -D
+```
+  然后在 webpack.common.js 文件中 optimization 增加以下配置：
+```
+const TerserPlugin = require('terser-webpack-plugin');
+
+module.exports = {
+	// other...
+  externals: {//...},
+  optimization: {
+    minimize: !isDev,
+    minimizer: [
+      !isDev && new TerserPlugin({
+        extractComments: false,
+        terserOptions: {
+          compress: { pure_funcs: ['console.log'] },
+        }
+      })
+    ].filter(Boolean),
+    splitChunks: {//...},
+  },
+}
+```
+  1) 首先增加了 minimize ，它可以指定压缩器，如果我们设为 true ，就默认使用 terser-webpack-plugin ，设为 false 即不压缩代码。接下来在 minimize 中判断如果是生产环境，就开启压缩。
+
+  2) extractComments 设为 false 意味着去除所有注释，除了有特殊标记的注释，比如 @preserve 标记，后面我们会利另一个插件来生成我们的自定义注释。
+  3) pure_funcs 可以设置我们想要去除的函数，比如我就将代码中所有 console.log 去除。
+
+#### css 代码压缩
+
+  css 代码压缩使用的插件是：<a href="https://github.com/NMFR/optimize-css-assets-webpack-plugin">optimize-css-assets-webpack-plugin</a>, 我们可以直接安装它，安装命令如下：
+```
+npm install optimize-css-assets-webpack-plugin -D
+```
+  我们在 webpack.common.js 配置代码配置如下：
+```
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+module.exports = {
+  optimization: {
+    minimizer: [
+      // terser
+      !isDev && new OptimizeCssAssetsPlugin()
+    ].filter(Boolean),
+  },
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
